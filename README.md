@@ -1,6 +1,6 @@
 # 🎵 Fosk — Personal Music Server
 
-Un server musicale personale self-hosted ispirato a Spotify.  
+Un server musicale personale self-hosted per casa tua!  
 Accedi alla tua musica locale da qualsiasi dispositivo in LAN.
 
 ---
