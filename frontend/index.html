@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fosk</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c6af7'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='white'>♫</text></svg>" />
+</head>
+
+<body class="premium">
+  <div id="bg-blur"></div>
+  <div id="app">
+
+    <!-- ── Sidebar ───────────────────────────────────────────────────── -->
+    <aside id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">♫</div>
+        Fosk
+      </div>
+
+      <div class="sidebar-section">
+        <div class="nav-item active" data-view="home">
+          <span class="icon">⌂</span> Home
+        </div>
+        <div class="nav-item" data-view="library">
+          <span class="icon">⊞</span> Libreria
+        </div>
+        <div class="nav-item" data-view="discover">
+          <span class="icon">✦</span> Discover
+        </div>
+        <div class="nav-item" data-view="favorites">
+          <span class="icon">♥</span> Preferiti
+        </div>
+        <div class="nav-item" data-view="settings">
+          <span class="icon">⚙</span> Impostazioni
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Cartelle</div>
+      </div>
+      <div id="folder-list">
+        <!-- injected by JS -->
+      </div>
+    </aside>
+
+    <!-- ── Main Content ──────────────────────────────────────────────── -->
+    <main id="main">
+      <div class="main-header">
+        <div>
+          <div class="main-title" id="main-title">Ciao 👋</div>
+          <div class="main-subtitle" id="main-subtitle">Inizia aggiungendo una cartella musicale</div>
+        </div>
+        <div class="search-bar">
+          <span style="color:var(--text-muted);font-size:14px">⌕</span>
+          <input type="text" id="search-input" placeholder="Cerca titolo, artista…" />
+        </div>
+      </div>
+
+      <div id="content" class="view-transition">
+        <!-- dynamic content injected here -->
+      </div>
+    </main>
+
+    <!-- ── Right Panel ───────────────────────────────────────────────── -->
+    <aside id="right-panel">
+      <div class="now-playing-header">In riproduzione</div>
+
+      <div class="now-playing-cover" id="np-cover">
+        <span id="np-cover-placeholder">♫</span>
+        <img id="np-cover-img" src="" alt="" style="display:none" />
+      </div>
+
+      <div class="now-playing-meta">
+        <div class="now-playing-title" id="np-title">—</div>
+        <div class="now-playing-artist" id="np-artist">—</div>
+      </div>
+
+      <div class="lyrics-container" id="lyrics-container">
+        <div class="lyrics-title">Testi</div>
+        <div id="lyrics-content">
+          <div class="no-lyrics">Seleziona un brano per vedere i testi</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Player Bar ────────────────────────────────────────────────── -->
+    <div id="player">
+      <!-- Left: track info -->
+      <div class="player-track-info">
+        <div class="player-thumb" id="player-thumb">
+          <span id="player-thumb-icon">♫</span>
+          <img id="player-thumb-img" src="" alt="" style="display:none" />
+        </div>
+        <div style="min-width:0; z-index:2">
+          <div class="player-track-title" id="player-title">Nessun brano</div>
+          <div class="player-track-artist" id="player-artist">—</div>
+        </div>
+        <canvas id="visualizer" width="100" height="32" style="margin-left:16px; opacity:0.6"></canvas>
+        <button class="btn-like" id="player-btn-like" style="margin-left:12px;display:none">♥</button>
+      </div>
+
+      <!-- Center: controls + progress -->
+      <div class="player-controls">
+        <div class="player-buttons">
+          <button class="player-btn" id="btn-shuffle" title="Shuffle">⇄</button>
+          <button class="player-btn" id="btn-prev" title="Precedente">⏮</button>
+          <button class="player-btn play-pause" id="btn-play" title="Play / Pause">▶</button>
+          <button class="player-btn" id="btn-next" title="Successivo">⏭</button>
+          <button class="player-btn" id="btn-repeat" title="Ripeti">↺</button>
+        </div>
+        <div class="progress-row">
+          <span class="time-label" id="time-current">0:00</span>
+          <div class="progress-bar" id="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            <div class="progress-handle" id="progress-handle" style="left:0%"></div>
+          </div>
+          <span class="time-label right" id="time-total">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right: volume + utils -->
+      <div class="player-volume">
+        <span class="volume-icon" id="vol-icon">🔊</span>
+        <div class="volume-slider" id="volume-bar">
+          <div class="volume-fill" id="volume-fill" style="width:80%"></div>
+        </div>
+        <button class="player-btn util-btn" id="btn-pip" title="Mini-player">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M13 11l4 4m0 0l-4 4m4-4H9"/></svg>
+        </button>
+        <button class="player-btn util-btn" id="btn-fs" title="Fullscreen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- #app -->
+
+  <!-- Fullscreen View Overlay -->
+  <div id="fullscreen-view">
+    <div id="fs-bg"></div>
+    <button id="fs-close" onclick="closeFullscreen()">✕</button>
+    
+    <div class="fs-content">
+      <div class="fs-main">
+        <div class="fs-cover-wrap">
+          <img id="fs-cover" src="" alt="" />
+        </div>
+        <div class="fs-meta">
+          <h1 id="fs-title"></h1>
+          <h2 id="fs-artist"></h2>
+          
+          <div class="fs-controls">
+            <button class="fs-btn" onclick="playPrev()">⏮</button>
+            <button class="fs-btn fs-play" id="fs-btn-play" onclick="togglePlay()">▶</button>
+            <button class="fs-btn" onclick="playNext()">⏭</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="fs-lyrics">
+        <div id="fs-lyrics-content">
+          <!-- Synced lyrics injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scan overlay -->
+  <div id="scan-overlay">
+    <div class="scan-modal">
+      <div class="scan-spinner"></div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px">Scansione in corso…
+      </div>
+      <div style="color:var(--text-muted);font-size:13px">Sto analizzando i tuoi file audio</div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <audio id="audio-element" preload="none"></audio>
+
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
