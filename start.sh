@@ -13,11 +13,11 @@ cd "$SCRIPT_DIR"
 if [ ! -d ".venv" ]; then
   echo "📦 Creating virtual environment…"
   python3 -m venv .venv
-  source .venv/bin/activate
-  pip install -r requirements.txt -q
-else
-  source .venv/bin/activate
 fi
+
+source .venv/bin/activate
+echo "📦 Checking dependencies…"
+pip install -r requirements.txt -q --break-system-packages
 
 echo "
 ╔══════════════════════════════════════════╗

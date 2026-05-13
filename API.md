@@ -1,5 +1,10 @@
 # 🔌 Fosk — API Reference
 
+[🏠 Home](README.md) | [📦 Installation](INSTALL.md) | [🔌 API Reference](API.md)
+
+---
+
+
 Base URL: `http://<server-ip>:<port>`
 
 All responses are JSON unless otherwise noted. Audio streaming returns binary data.

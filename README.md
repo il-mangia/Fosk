@@ -4,7 +4,20 @@
 
 # Fosk — Personal Music Server
 
+[🏠 Home](README.md) | [📦 Installation](INSTALL.md) | [🔌 API Reference](API.md)
+
+---
+
 > Self-hosted music streaming for your home network. Your library, your rules.
+
+### 📖 Documentation
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [📁 First Scan](#-first-scan)
+- [🏗 Project Structure](#-project-structure)
+- [⚙️ Configuration](#️-configuration)
+- [📝 Technical Notes](#-technical-notes)
+
 
 Fosk scans your local music folders and makes them available for streaming to any device on your LAN — with metadata enrichment, synced lyrics, smart discovery, and a clean dark UI.
 

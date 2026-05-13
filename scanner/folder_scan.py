@@ -22,54 +22,53 @@ async def _upsert_folder(path: Path, parent_id: int | None) -> int:
     return folder_id
 
 
+# Limit concurrency to avoid hitting OS/DB limits
+SEM = asyncio.Semaphore(20)
+
 async def _upsert_track(folder_id: int, path: Path) -> None:
-    existing = await db.fetchone("SELECT id FROM tracks WHERE path = ?", (str(path),))
-    if existing:
-        return  # already indexed
+    async with SEM:
+        existing = await db.fetchone("SELECT id FROM tracks WHERE path = ?", (str(path),))
+        if existing:
+            return  # already indexed
 
-    meta = await asyncio.get_event_loop().run_in_executor(None, parse_file, path)
+        # Extract local metadata (fast)
+        meta = await asyncio.get_event_loop().run_in_executor(None, parse_file, path)
 
-    # Enrichment: if cover or metadata is missing, try Deezer
-    if not meta.get("cover_url") or not meta.get("artist") or not meta.get("album"):
-        try:
-            enriched = await enrich_track(meta)
-            meta.update(enriched)
-        except Exception as e:
-            print(f"[Scanner] Enrichment failed for {path.name}: {e}")
+        # Skip enrichment during initial scan for maximum speed
+        # Enrichment will happen automatically when the track is first viewed or in background later
 
-    await db.execute(
-        """
-        INSERT INTO tracks
-            (folder_id, path, filename, title, artist, album, duration,
-             cover_url, year, genre, track_num)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            folder_id,
-            str(path),
-            path.name,
-            meta.get("title"),
-            meta.get("artist"),
-            meta.get("album"),
-            meta.get("duration"),
-            meta.get("cover_url"),
-            meta.get("year"),
-            meta.get("genre"),
-            meta.get("track_num"),
-        ),
-    )
+        await db.execute(
+            """
+            INSERT INTO tracks
+                (folder_id, path, filename, title, artist, album, duration,
+                 cover_url, year, genre, track_num)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                folder_id,
+                str(path),
+                path.name,
+                meta.get("title"),
+                meta.get("artist"),
+                meta.get("album"),
+                meta.get("duration"),
+                meta.get("cover_url"),
+                meta.get("year"),
+                meta.get("genre"),
+                meta.get("track_num"),
+            ),
+        )
 
 
 async def scan_root(root: str) -> dict:
     """
     Entry point: scan a root music directory.
-    Returns a summary dict with counts.
+    Optimized for speed: backgroundable and concurrent.
     """
     root_path = Path(root).expanduser().resolve()
     if not root_path.exists():
-        raise FileNotFoundError(f"Path not found: {root_path}")
-    if not root_path.is_dir():
-        raise NotADirectoryError(f"Not a directory: {root_path}")
+        print(f"[Scanner] Error: Path not found {root_path}")
+        return {}
 
     folders_added = 0
     tracks_added  = 0
@@ -77,25 +76,32 @@ async def scan_root(root: str) -> dict:
     async def _walk(path: Path, parent_id: int | None):
         nonlocal folders_added, tracks_added
 
-        folder_id = await _upsert_folder(path, parent_id)
-        folders_added += 1
+        try:
+            folder_id = await _upsert_folder(path, parent_id)
+            folders_added += 1
 
-        audio_files = [
-            f for f in sorted(path.iterdir())
-            if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS
-        ]
-        
-        # Parallelize track insertion for speed
-        if audio_files:
-            tasks = [_upsert_track(folder_id, f) for f in audio_files]
-            await asyncio.gather(*tasks)
-            tracks_added += len(audio_files)
+            # Get files and subdirs in one go
+            entries = list(path.iterdir())
+            audio_files = [
+                f for f in entries
+                if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS
+            ]
+            subdirs = sorted([d for d in entries if d.is_dir()])
+            
+            # Start track insertions
+            if audio_files:
+                await asyncio.gather(*[_upsert_track(folder_id, f) for f in audio_files])
+                tracks_added += len(audio_files)
 
-        subdirs = sorted([d for d in path.iterdir() if d.is_dir()])
-        for sub in subdirs:
-            await _walk(sub, folder_id)
+            # Recurse into subdirs
+            for sub in subdirs:
+                await _walk(sub, folder_id)
+        except Exception as e:
+            print(f"[Scanner] Error walking {path}: {e}")
 
+    print(f"[Scanner] Starting scan of {root_path}...")
     await _walk(root_path, None)
+    print(f"[Scanner] Completed. Added {tracks_added} tracks in {folders_added} folders.")
     return {"folders": folders_added, "tracks": tracks_added, "root": str(root_path)}
 
 

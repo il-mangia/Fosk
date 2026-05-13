@@ -1,5 +1,10 @@
 # 🛠 Fosk — Installation Guide
 
+[🏠 Home](README.md) | [📦 Installation](INSTALL.md) | [🔌 API Reference](API.md)
+
+---
+
+
 This guide covers installation on Linux, macOS, and Windows, plus optional steps for running Fosk as a background service.
 
 ---

@@ -45,6 +45,30 @@ CREATE TABLE IF NOT EXISTS plays (
     timestamp  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    username  TEXT NOT NULL UNIQUE,
+    password  TEXT NOT NULL,
+    is_admin  INTEGER DEFAULT 0,
+    is_enabled INTEGER DEFAULT 1,
+    expiry_date TEXT,                 -- ISO date
+    avatar_url TEXT,                  -- Local path or URL
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS playlists (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS playlist_tracks (
+    playlist_id INTEGER REFERENCES playlists(id) ON DELETE CASCADE,
+    track_id    INTEGER REFERENCES tracks(id) ON DELETE CASCADE,
+    position    INTEGER,
+    PRIMARY KEY (playlist_id, track_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_tracks_folder  ON tracks(folder_id);
 CREATE INDEX IF NOT EXISTS idx_tracks_sort    ON tracks(album, track_num, title);
 CREATE INDEX IF NOT EXISTS idx_plays_track    ON plays(track_id);

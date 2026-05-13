@@ -4,6 +4,23 @@
 
 const API = '/api';
 
+const ICONS = {
+  play: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`,
+  pause: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`,
+  volumeX: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-x"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`,
+  volume: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg>`,
+  volume1: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-1"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+  volume2: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`,
+  heart: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>`,
+  heartFilled: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>`,
+  download: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
+  folder: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>`,
+  music: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>`,
+  shuffle: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shuffle"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>`,
+  repeat: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-repeat"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>`,
+  repeat1: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-repeat-1"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path><path d="M11 10.5V15"></path></svg>`
+};
+
 // ── State ────────────────────────────────────────────────────────────────────
 const state = {
   folders: [],
@@ -14,11 +31,13 @@ const state = {
   shuffle: false,
   repeat: false,       // false | 'one' | 'all'
   deviceId: getOrCreateDeviceId(),
+  isAdmin: localStorage.getItem('fosk_is_admin') === 'true',
   lyrics: null,
   lyricsTimer: null,
   settings: {
     enableBlur: localStorage.getItem('fosk_blur') !== 'false',
-    enableCrossfade: localStorage.getItem('fosk_crossfade') === 'true'
+    enableCrossfade: localStorage.getItem('fosk_crossfade') === 'true',
+    autoplay: localStorage.getItem('fosk_autoplay') !== 'false'
   }
 };
 
@@ -37,7 +56,28 @@ const audio = document.getElementById('audio-element');
   bindKeyboardShortcuts();
   audio.volume = 0.8;
   updateVolumeUI(0.8);
+  
+  if (state.isAdmin) {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+  }
+
+  // Auto-scan on load
+  api('GET', '/folders').then(data => {
+    if (data?.folders) {
+      data.folders.forEach(f => api('POST', '/scan', { path: f.path }));
+    }
+  });
+
+  // Poll for background scans
+  setInterval(async () => {
+    const status = await api('GET', '/scan/status');
+    if (status && status.active_scans > 0) {
+      console.log('[Scanner] Scan in progress, updating folders...');
+      await loadFolders();
+    }
+  }, 5000);
 })();
+
 
 // ── Device ID ────────────────────────────────────────────────────────────────
 function getOrCreateDeviceId() {
@@ -55,6 +95,13 @@ async function registerDevice() {
   await api('POST', '/device', { id: state.deviceId, name });
 }
 
+async function logout() {
+  await api('POST', '/logout');
+  localStorage.removeItem('fosk_is_admin');
+  window.location.href = '/';
+}
+
+
 // ── API helpers ───────────────────────────────────────────────────────────────
 async function api(method, path, body = null) {
   const opts = { method, headers: {} };
@@ -64,6 +111,10 @@ async function api(method, path, body = null) {
   }
   try {
     const res = await fetch(API + path, opts);
+    if (res.status === 401) {
+      window.location.href = '/'; // Unauthorized, back to portal
+      return null;
+    }
     if (!res.ok) throw new Error(res.statusText);
     return await res.json();
   } catch (e) {
@@ -214,9 +265,12 @@ function renderView(name) {
     document.getElementById('main-title').textContent = 'Impostazioni';
     document.getElementById('main-subtitle').textContent = 'Gestione libreria e preferenze';
     renderSettingsView();
+  } else if (name === 'users') {
+    renderUsersView();
   }
 }
 
+// ── Settings View ─────────────────────────────────────────────────────────────
 async function renderSettingsView() {
   const content = document.getElementById('content');
   content.innerHTML = '<div style="padding:40px;color:var(--text-muted)">Caricamento impostazioni…</div>';
@@ -247,6 +301,86 @@ async function renderSettingsView() {
         <h3>Sorgenti Attuali</h3>
         <div style="margin-top:12px">
           ${roots.length === 0 ? '<div class="text-muted">Nessuna cartella aggiunta.</div>' : roots.map(f => `
+<!-- slide -->
+// ── Admin Users View ────────────────────────────────────────────────────────
+async function renderUsersView() {
+  document.getElementById('main-title').textContent = 'Gestione Utenti';
+  document.getElementById('main-subtitle').textContent = 'Amministra gli accessi al server';
+  
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading-spinner" style="margin:50px auto"></div>';
+
+  const data = await api('GET', '/admin/users');
+  if (!data) return content.innerHTML = '<p style="padding:20px">Errore nel caricamento utenti.</p>';
+
+  let html = \`
+    <div style="padding:20px">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px">
+        <h3 style="font-family:Syne,sans-serif">Elenco Utenti</h3>
+        <button class="btn btn-primary" style="padding:8px 16px; font-size:12px" onclick="showAddUserModal()">+ Nuovo Utente</button>
+      </div>
+      
+      <div style="background:var(--bg-elevated); border-radius:12px; border:1px solid var(--border); overflow:hidden">
+        <table style="width:100%; border-collapse:collapse; text-align:left">
+          <thead>
+            <tr style="background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border)">
+              <th style="padding:14px 20px; font-size:12px; color:var(--text-muted)">UTENTE</th>
+              <th style="padding:14px 20px; font-size:12px; color:var(--text-muted)">RUOLO</th>
+              <th style="padding:14px 20px; font-size:12px; color:var(--text-muted)">STATO</th>
+              <th style="padding:14px 20px; font-size:12px; color:var(--text-muted)">SCADENZA</th>
+              <th style="padding:14px 20px; font-size:12px; color:var(--text-muted)">AZIONI</th>
+            </tr>
+          </thead>
+          <tbody>
+            \${data.users.map(u => \`
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:14px 20px">
+                  <div style="display:flex; align-items:center; gap:12px">
+                    <div style="width:32px; height:32px; border-radius:8px; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:700">
+                      \${u.avatar_url ? \\\`<img src="\${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"/>\\\` : u.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style="font-weight:600">\${esc(u.username)}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="padding:14px 20px">
+                  <span style="font-size:11px; padding:2px 8px; border-radius:100px; background:\${u.is_admin ? 'rgba(147,51,234,0.2)' : 'rgba(255,255,255,0.05)'}; color:\${u.is_admin ? 'var(--accent)' : 'var(--text-muted)'}">
+                    \${u.is_admin ? 'ADMIN' : 'UTENTE'}
+                  </span>
+                </td>
+                <td style="padding:14px 20px">
+                  <span style="color:\${u.is_enabled ? 'var(--teal)' : 'var(--pink)'}; font-size:13px">
+                    \${u.is_enabled ? 'Attivo' : 'Disabilitato'}
+                  </span>
+                </td>
+                <td style="padding:14px 20px; color:var(--text-muted); font-size:12px">
+                  \${u.expiry_date ? new Date(u.expiry_date).toLocaleDateString() : 'Mai'}
+                </td>
+                <td style="padding:14px 20px">
+                  <button class="icon-btn" onclick="toggleUserStatus(\${u.id}, \${u.is_enabled})">\${u.is_enabled ? 'Disabilita' : 'Abilita'}</button>
+                </td>
+              </tr>
+            \`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  \`;
+  content.innerHTML = html;
+}
+
+async function toggleUserStatus(id, currentlyEnabled) {
+  await api('POST', '/admin/users/update', { id, is_enabled: !currentlyEnabled });
+  renderUsersView();
+}
+
+function showAddUserModal() {
+  const user = prompt("Nome utente:");
+  if (!user) return;
+  const pass = prompt("Password:");
+  api('POST', '/admin/users/add', { username: user, password: pass }).then(() => renderUsersView());
+}
             <div style="padding:8px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between">
               <span style="font-size:13px">${esc(f.path)}</span>
               <span style="color:var(--text-muted)">📁</span>
@@ -289,6 +423,10 @@ async function renderSettingsView() {
           <span style="font-size:14px">Dissolvenza tra i brani (Crossfade)</span>
           <input type="checkbox" ${state.settings.enableCrossfade ? 'checked' : ''} onchange="toggleSetting('enableCrossfade', this.checked)">
         </label>
+        <label style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; cursor:pointer">
+          <span style="font-size:14px">Autoplay (Musica infinita)</span>
+          <input type="checkbox" ${state.settings.autoplay ? 'checked' : ''} onchange="toggleSetting('autoplay', this.checked)">
+        </label>
         <p style="font-size:11px; color:var(--text-muted); margin-top:8px">Disattiva lo sfondo per migliorare le prestazioni su dispositivi lenti.</p>
       </div>
 
@@ -298,6 +436,7 @@ async function renderSettingsView() {
         <div style="margin-top:12px">
           <div style="font-size:13px; color:var(--text-secondary)">ID: <code style="background:var(--bg-active); padding:2px 4px; border-radius:4px">${state.deviceId}</code></div>
           <div style="font-size:11px; color:var(--text-muted); margin-top:4px">Registrato come: ${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}</div>
+          <button class="btn btn-secondary" style="margin-top:12px; width:100%" onclick="logout()">Logout</button>
         </div>
       </div>
 
@@ -314,7 +453,8 @@ async function renderSettingsView() {
 
 function toggleSetting(key, val) {
   state.settings[key] = val;
-  localStorage.setItem('fosk_' + key.replace('enable', '').toLowerCase(), val);
+  const storageKey = 'fosk_' + key.replace('enable', '').toLowerCase();
+  localStorage.setItem(storageKey, val);
   if (key === 'enableBlur' && !val) {
     document.getElementById('bg-blur').classList.remove('active');
   } else if (key === 'enableBlur' && val && state.currentTrack) {
@@ -376,8 +516,8 @@ async function renderDashboard() {
         return `
         <div class="discover-card" onclick="openFolder(${f.id})">
           <div class="discover-card-cover">
-            ${coverUrl ? `<img src="${coverUrl}" loading="lazy" />` : '📁'}
-            <div class="card-play-overlay">📂</div>
+            ${coverUrl ? `<img src="${coverUrl}" loading="lazy" />` : ICONS.folder}
+            <div class="card-play-overlay">${ICONS.folder}</div>
           </div>
           <div class="discover-card-title" style="font-size:15px">${esc(f.name)}</div>
           <div class="discover-card-artist" style="color:var(--text-secondary)">${esc(f.path.split(/[\\/]/).pop())}</div>
@@ -488,8 +628,8 @@ function renderDiscoverSection(title, tracks) {
       ${tracks.map(t => `
         <div class="discover-card" onclick="playDiscoveryTrack(${t.id})">
           <div class="discover-card-cover">
-            <img src="${API}/cover/${t.id}" alt="" onerror="this.parentElement.innerHTML='♫'" loading="lazy"/>
-            <div class="card-play-overlay">▶</div>
+            <img src="${API}/cover/${t.id}" alt="" onerror="this.parentElement.innerHTML='${ICONS.music}'" loading="lazy"/>
+            <div class="card-play-overlay">${ICONS.play}</div>
           </div>
           <div class="discover-card-title">${esc(t.title || t.filename)}</div>
           <div class="discover-card-artist">${esc(t.artist || '—')}</div>
@@ -552,10 +692,10 @@ function trackRowHTML(t, i) {
   <div class="track-row" data-id="${t.id}" data-index="${i}" onclick="playTrackFromQueue(${i})">
     <div class="track-num">
       <span class="track-num-text">${i + 1}</span>
-      <span class="play-icon-inline">▶</span>
+      <span class="play-icon-inline">${ICONS.play}</span>
     </div>
     <div class="track-cover">
-      <img src="${coverUrl}" onerror="this.parentElement.innerHTML='♫'" loading="lazy"/>
+      <img src="${coverUrl}" onerror="this.parentElement.innerHTML='${ICONS.music}'" loading="lazy"/>
     </div>
     <div class="track-info">
       <div class="track-title">${esc(t.title || t.filename)}</div>
@@ -565,8 +705,10 @@ function trackRowHTML(t, i) {
     <div class="track-genre">${esc(t.genre || '—')}</div>
     <div class="track-duration">${fmtTime(t.duration)}</div>
     <div class="track-actions">
-      <button class="btn-like ${isFav}" onclick="event.stopPropagation();toggleLike(${t.id}, this)">♥</button>
-      <button class="icon-btn" title="Download" onclick="event.stopPropagation();downloadTrack(${t.id})">↓</button>
+      <button class="btn-like ${isFav}" onclick="event.stopPropagation();toggleLike(${t.id}, this)">
+        ${t.is_favorite ? ICONS.heartFilled : ICONS.heart}
+      </button>
+      <button class="icon-btn" title="Download" onclick="event.stopPropagation();downloadTrack(${t.id})">${ICONS.download}</button>
     </div>
   </div>`;
 }
@@ -609,9 +751,8 @@ async function loadAndPlay(track) {
 
   try {
     await audio.play();
-    initVisualizer(); // Start visualizer on first play
-    document.getElementById('btn-play').textContent = '⏸';
-    document.getElementById('fs-btn-play').textContent = '⏸';
+    document.getElementById('btn-play').innerHTML = ICONS.pause;
+    document.getElementById('fs-btn-play').innerHTML = ICONS.pause;
   } catch (e) {
     console.warn('Play blocked:', e);
   }
@@ -638,6 +779,7 @@ function updateBackgroundBlur(trackId) {
 async function toggleLike(trackId, btnEl) {
   const isFav = !btnEl.classList.contains('active');
   btnEl.classList.toggle('active', isFav);
+  btnEl.innerHTML = isFav ? ICONS.heartFilled : ICONS.heart;
 
   // If it's the current track, update player heart too
   if (state.currentTrack && state.currentTrack.id === trackId) {
@@ -662,7 +804,7 @@ function updateNowPlayingUI(track) {
   img.style.display = 'block';
   ph.style.display = 'none';
   // If image fails to load (no cover), show placeholder
-  img.onerror = () => { img.style.display = 'none'; ph.style.display = ''; };
+  img.onerror = () => { img.style.display = 'none'; ph.style.display = ''; ph.innerHTML = ICONS.music; };
 
   // Player bar
   document.getElementById('player-title').textContent = track.title || track.filename;
@@ -680,7 +822,7 @@ function updateNowPlayingUI(track) {
   tImg.src = coverUrl;
   tImg.style.display = 'block';
   tIcon.style.display = 'none';
-  tImg.onerror = () => { tImg.style.display = 'none'; tIcon.style.display = ''; };
+  tImg.onerror = () => { tImg.style.display = 'none'; tIcon.style.display = ''; tIcon.innerHTML = ICONS.music; };
 
   document.getElementById('time-total').textContent = fmtTime(track.duration || 0);
   document.title = `${track.title || track.filename} — Fosk`;
@@ -689,6 +831,7 @@ function updateNowPlayingUI(track) {
   const heart = document.getElementById('player-btn-like');
   heart.style.display = 'block';
   heart.classList.toggle('active', !!track.is_favorite);
+  heart.innerHTML = track.is_favorite ? ICONS.heartFilled : ICONS.heart;
   heart.onclick = () => toggleLike(track.id, heart);
 }
 
@@ -777,12 +920,12 @@ function bindPlayerControls() {
   audio.addEventListener('timeupdate', onTimeUpdate);
   audio.addEventListener('ended', onEnded);
   audio.addEventListener('play', () => { 
-    document.getElementById('btn-play').textContent = '⏸'; 
-    document.getElementById('fs-btn-play').textContent = '⏸';
+    document.getElementById('btn-play').innerHTML = ICONS.pause; 
+    document.getElementById('fs-btn-play').innerHTML = ICONS.pause;
   });
   audio.addEventListener('pause', () => { 
-    document.getElementById('btn-play').textContent = '▶'; 
-    document.getElementById('fs-btn-play').textContent = '▶';
+    document.getElementById('btn-play').innerHTML = ICONS.play; 
+    document.getElementById('fs-btn-play').innerHTML = ICONS.play;
   });
 }
 
@@ -866,10 +1009,33 @@ function getNextIndex() {
   return next < state.queue.length ? next : (state.repeat === 'all' ? 0 : -1);
 }
 
-function playNext() {
+async function playNext() {
   const idx = getNextIndex();
   if (idx !== -1 && state.queue[idx]) {
     playTrackFromQueue(idx);
+  } else if (state.settings.autoplay) {
+    // Queue ended, but autoplay is ON
+    console.log('[Autoplay] Queue ended, finding similar music...');
+    
+    let nextTracks = [];
+    const currentId = state.currentTrack?.id;
+
+    if (currentId) {
+      const simData = await api('GET', `/similar/${currentId}`);
+      if (simData && simData.tracks) nextTracks = simData.tracks;
+    }
+
+    if (nextTracks.length === 0) {
+      const discData = await api('GET', '/discover');
+      if (discData && discData.random_pick) nextTracks = discData.random_pick;
+    }
+
+    if (nextTracks.length > 0) {
+      const startIdx = state.queue.length;
+      state.queue = [...state.queue, ...nextTracks];
+      playTrackFromQueue(startIdx);
+      toast('🪄 Autoplay: nuovi brani suggeriti');
+    }
   }
 }
 
@@ -878,7 +1044,7 @@ function onEnded() {
   if (state.repeat === 'one') {
     audio.currentTime = 0; audio.play();
   } else {
-    playNext();
+    playNext(); // This is now async but we don't need to await it here
   }
 }
 
@@ -893,7 +1059,7 @@ function toggleRepeat() {
   state.repeat = modes[(idx + 1) % modes.length];
   const btn = document.getElementById('btn-repeat');
   btn.classList.toggle('active', state.repeat !== false);
-  btn.textContent = state.repeat === 'one' ? '↺¹' : '↺';
+  btn.innerHTML = state.repeat === 'one' ? ICONS.repeat1 : ICONS.repeat;
 }
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
@@ -957,12 +1123,22 @@ function bindVolumeBar() {
 
   document.getElementById('vol-icon').onclick = () => {
     audio.muted = !audio.muted;
-    document.getElementById('vol-icon').textContent = audio.muted ? '🔇' : '🔊';
+    updateVolumeUI(audio.volume);
   };
 }
 
 function updateVolumeUI(vol) {
   document.getElementById('volume-fill').style.width = `${vol * 100}%`;
+  const icon = document.getElementById('vol-icon');
+  if (audio.muted || vol === 0) {
+    icon.innerHTML = ICONS.volumeX;
+  } else if (vol < 0.3) {
+    icon.innerHTML = ICONS.volume;
+  } else if (vol < 0.7) {
+    icon.innerHTML = ICONS.volume1;
+  } else {
+    icon.innerHTML = ICONS.volume2;
+  }
 }
 
 // ── Search ────────────────────────────────────────────────────────────────────
@@ -1069,46 +1245,11 @@ async function togglePiP() {
   };
 }
 
-let audioCtx, analyser, visualizerInit = false;
 
-function initVisualizer() {
-  if (visualizerInit) return;
-  const canvas = document.getElementById('visualizer');
-  if (!canvas) return;
-  visualizerInit = true;
 
-  const ctx = canvas.getContext('2d');
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const source = audioCtx.createMediaElementSource(audio);
-  analyser = audioCtx.createAnalyser();
-  
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-  
-  analyser.fftSize = 64;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-  
-  const barWidth = (canvas.width / bufferLength) * 2.5;
-  let barHeight;
-  let x = 0;
-
-  function draw() {
-    requestAnimationFrame(draw);
-    if (audio.paused) return;
-
-    x = 0;
-    analyser.getByteFrequencyData(dataArray);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = 0; i < bufferLength; i++) {
-      barHeight = dataArray[i] / 4;
-      ctx.fillStyle = `rgba(147, 51, 234, ${barHeight/40 + 0.3})`;
-      ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-      x += barWidth + 2;
-    }
-  }
-  draw();
+async function logout() {
+  await api('POST', '/logout');
+  location.reload();
 }
 
 // Make these accessible from inline HTML
@@ -1120,3 +1261,4 @@ window.selectTrack = selectTrack;
 window.closeFullscreen = closeFullscreen;
 window.toggleFullscreen = toggleFullscreen;
 window.togglePiP = togglePiP;
+window.logout = logout;

@@ -36,15 +36,14 @@ echo  ^|    Fosk Music Server  v1.0              ^|
 echo  +==========================================+
 echo  ^|  LAN:   http://%LAN_IP%:%PORT%
 echo  ^|  Local: http://127.0.0.1:%PORT%
+echo  ^|  Public: http://[IP_ADDRESS] (if port-forwarded)
 echo  +==========================================+
 echo.
 
 :: Start server in background, then open browser at LAN address
 start "Fosk Server" /b uvicorn main:app --host 0.0.0.0 --port %PORT%
 
-:: Wait 2 seconds for the server to be ready, then open browser
-timeout /t 2 /nobreak >nul
-start "" http://%LAN_IP%:%PORT%
+:: Wait for server process
 
 :: Re-attach: keep window open until CTRL+C
 :keepalive

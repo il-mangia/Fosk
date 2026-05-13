@@ -2,8 +2,9 @@
 All API routes for Fosk.
 Mounted at /api by main.py.
 """
+import base64
 from pathlib import Path
-from fastapi import APIRouter, Request, HTTPException, Query
+from fastapi import APIRouter, Request, HTTPException, Query, Response, BackgroundTasks
 from fastapi.responses import FileResponse
 
 from database import db
@@ -17,6 +18,163 @@ from services.discovery import get_discovery, get_similar, record_play
 from player.stream      import stream_file
 
 router = APIRouter()
+ACTIVE_SCANS = 0
+
+
+@router.get("/scan/status")
+async def scan_status():
+    return {"active_scans": ACTIVE_SCANS}
+
+
+# ─── Setup & Authentication ──────────────────────────────────────────────────
+
+@router.get("/setup/status")
+async def setup_status():
+    """Check if the server has been set up (i.e., if an admin exists)."""
+    try:
+        user = await db.fetchone("SELECT id FROM users LIMIT 1")
+        return {"setup_done": user is not None}
+    except Exception:
+        # If the users table doesn't exist yet, setup is definitely not done
+        return {"setup_done": False}
+
+
+@router.get("/users")
+async def list_users():
+    """Return all users for the profile selection screen."""
+    users = await db.fetchall("SELECT id, username, (password IS NOT NULL AND password != '') as has_password FROM users")
+    return {"users": users}
+
+
+
+async def run_scan_task(path: str):
+    global ACTIVE_SCANS
+    ACTIVE_SCANS += 1
+    try:
+        await scan_root(path)
+    finally:
+        ACTIVE_SCANS -= 1
+
+
+@router.post("/setup")
+async def complete_setup(body: dict, response: Response, background_tasks: BackgroundTasks):
+    """
+    Initial server setup: create admin and add initial music folders.
+    Setup is now instant; scanning happens in the background.
+    """
+    username = body.get("username")
+    password = body.get("password")
+    folders  = body.get("folders", [])
+
+    if not username or not password:
+        raise HTTPException(400, "Username and password are required")
+
+    # 1. Create admin user
+    try:
+        await db.execute(
+            "INSERT INTO users (username, password, is_admin) VALUES (?, ?, 1)",
+            (username, password)
+        )
+    except Exception as e:
+        raise HTTPException(400, f"Error creating user: {str(e)}")
+
+    # 2. Set session cookie
+    response.set_cookie(key="fosk_admin", value=username, httponly=True, samesite="lax", max_age=31536000)
+
+    # 3. Queue scans in background
+    for path in folders:
+        if path.strip():
+            background_tasks.add_task(run_scan_task, path.strip())
+
+    return {"ok": True, "message": "Setup completed. Library scan started in background."}
+
+
+@router.post("/login")
+async def login(body: dict, response: Response):
+    username = body.get("username")
+    password = body.get("password") or ""
+    
+    user = await db.fetchone("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    if not user:
+        raise HTTPException(401, "Credenziali non valide")
+    
+    if not user["is_enabled"]:
+        raise HTTPException(403, "Account disabilitato")
+    
+    if user["expiry_date"]:
+        from datetime import datetime
+        if datetime.fromisoformat(user["expiry_date"]) < datetime.now():
+            raise HTTPException(403, "Account scaduto")
+
+    response.set_cookie(key="fosk_admin", value=username, httponly=True, samesite="lax", max_age=31536000)
+    return {"ok": True, "username": username, "is_admin": bool(user["is_admin"])}
+
+
+@router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie("fosk_admin")
+    return {"ok": True}
+
+
+# ─── Admin & Users ──────────────────────────────────────────────────────────
+
+@router.get("/admin/users")
+async def list_all_users(request: Request):
+    # Basic check (should use a proper dependency but keeping it simple for now)
+    admin_name = request.cookies.get("fosk_admin")
+    admin = await db.fetchone("SELECT is_admin FROM users WHERE username = ?", (admin_name,))
+    if not admin or not admin["is_admin"]:
+        raise HTTPException(403, "Accesso negato")
+
+    users = await db.fetchall("SELECT id, username, is_admin, is_enabled, expiry_date, avatar_url FROM users")
+    return {"users": users}
+
+
+@router.post("/admin/users/add")
+async def add_user(body: dict, request: Request):
+    admin_name = request.cookies.get("fosk_admin")
+    admin = await db.fetchone("SELECT is_admin FROM users WHERE username = ?", (admin_name,))
+    if not admin or not admin["is_admin"]:
+        raise HTTPException(403, "Accesso negato")
+
+    username = body.get("username")
+    password = body.get("password", "")
+    is_admin = 1 if body.get("is_admin") else 0
+    expiry   = body.get("expiry_date")
+
+    try:
+        await db.execute(
+            "INSERT INTO users (username, password, is_admin, expiry_date) VALUES (?, ?, ?, ?)",
+            (username, password, is_admin, expiry)
+        )
+        return {"ok": True}
+    except Exception as e:
+        raise HTTPException(400, str(e))
+
+
+@router.post("/admin/users/update")
+async def update_user(body: dict, request: Request):
+    admin_name = request.cookies.get("fosk_admin")
+    admin = await db.fetchone("SELECT is_admin FROM users WHERE username = ?", (admin_name,))
+    if not admin or not admin["is_admin"]:
+        raise HTTPException(403, "Accesso negato")
+
+    user_id = body.get("id")
+    enabled = 1 if body.get("is_enabled") else 0
+    expiry  = body.get("expiry_date")
+    
+    await db.execute(
+        "UPDATE users SET is_enabled = ?, expiry_date = ? WHERE id = ?",
+        (enabled, expiry, user_id)
+    )
+    return {"ok": True}
+
+
+@router.post("/profile/avatar")
+async def upload_avatar(request: Request):
+    # This would normally use UploadFile, but for simplicity we'll assume base64 or similar for now
+    # or just a placeholder. Let's implement real upload for premium feel.
+    pass # Will implement properly if needed, for now just placeholder
 
 
 # ─── Folders ─────────────────────────────────────────────────────────────────
@@ -49,21 +207,17 @@ async def folder_detail_all(folder_id: int):
 
 
 @router.post("/scan")
-async def scan(body: dict):
+async def scan_library(body: dict, background_tasks: BackgroundTasks):
     """
-    Trigger a library scan.
+    Trigger a library scan in the background.
     Body: {"path": "/path/to/music"}
     """
     path = body.get("path")
     if not path:
         raise HTTPException(400, "Missing 'path' in body")
-    try:
-        result = await scan_root(path)
-    except FileNotFoundError as e:
-        raise HTTPException(404, str(e))
-    except NotADirectoryError as e:
-        raise HTTPException(400, str(e))
-    return result
+    
+    background_tasks.add_task(run_scan_task, path)
+    return {"ok": True, "message": f"Scan for {path} started in background."}
 
 
 # ─── Tracks ──────────────────────────────────────────────────────────────────
@@ -161,8 +315,6 @@ async def track_cover(track_id: int):
 
     if cover_data.startswith("data:"):
         try:
-            from fastapi.responses import Response
-            import base64
             header, encoded = cover_data.split(",", 1)
             mime = header.split(":")[1].split(";")[0]
             data = base64.b64decode(encoded)
@@ -258,3 +410,59 @@ async def search(q: str = Query(..., min_length=1)):
         (q_like, q_like, q_like),
     )
     return {"tracks": tracks, "query": q}
+
+
+# ─── Playlists ───────────────────────────────────────────────────────────────
+
+@router.get("/playlists")
+async def list_playlists():
+    return {"playlists": await db.fetchall("SELECT * FROM playlists ORDER BY name")}
+
+
+@router.post("/playlists")
+async def create_playlist(body: dict):
+    name = body.get("name")
+    if not name: raise HTTPException(400, "Missing name")
+    pid = await db.execute("INSERT INTO playlists (name) VALUES (?)", (name,))
+    return {"id": pid, "name": name}
+
+
+@router.get("/playlist/{pid}")
+async def get_playlist(pid: int):
+    playlist = await db.fetchone("SELECT * FROM playlists WHERE id = ?", (pid,))
+    if not playlist: raise HTTPException(404)
+    tracks = await db.fetchall(
+        """
+        SELECT t.* FROM tracks t
+        JOIN playlist_tracks pt ON t.id = pt.track_id
+        WHERE pt.playlist_id = ?
+        ORDER BY pt.position
+        """, (pid,)
+    )
+    return {"playlist": playlist, "tracks": tracks}
+
+
+@router.post("/playlist/{pid}/add")
+async def add_to_playlist(pid: int, body: dict):
+    track_id = body.get("track_id")
+    if not track_id: raise HTTPException(400)
+    await db.execute(
+        "INSERT OR IGNORE INTO playlist_tracks (playlist_id, track_id) VALUES (?, ?)",
+        (pid, track_id)
+    )
+    return {"ok": True}
+
+
+# ─── History ─────────────────────────────────────────────────────────────────
+
+@router.get("/history")
+async def get_history(limit: int = 50):
+    rows = await db.fetchall(
+        """
+        SELECT p.timestamp, t.* FROM plays p
+        JOIN tracks t ON p.track_id = t.id
+        ORDER BY p.timestamp DESC
+        LIMIT ?
+        """, (limit,)
+    )
+    return {"history": rows}
