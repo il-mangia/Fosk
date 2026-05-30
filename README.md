@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Banner.png" width="128" alt="Fosk Banner">
+  <img src="frontend/Logo.png" width="128" alt="Fosk Logo">
 </p>
 
 # Fosk — Personal Music Server
